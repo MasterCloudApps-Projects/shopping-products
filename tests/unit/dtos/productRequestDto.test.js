@@ -103,6 +103,53 @@ describe('productRequestDto tests', () => {
     expect(productRequestDto.quantity).toBe(QUANTITY);
   });
 
+  test('Given not quantity When call constructor Then should throw an error', async () => {
+    const error = await getError(async () => new ProductRequestDto({
+      name: NAME, description: DESCRIPTION, price: PRICE, quantity: null,
+    }));
+
+    expect(error).not.toBeInstanceOf(NoErrorThrownError);
+    expect(error).toHaveProperty('message', 'Quantity is mandatory and must to be an integer greater than 0');
+  });
+
+  test('Given an string quantity When call constructor Then should throw an error', async () => {
+    const error = await getError(async () => new ProductRequestDto({
+      name: NAME, description: DESCRIPTION, price: PRICE, quantity: 'Nan',
+    }));
+
+    expect(error).not.toBeInstanceOf(NoErrorThrownError);
+    expect(error).toHaveProperty('message', 'Quantity is mandatory and must to be an integer greater than 0');
+  });
+
+  test('Given not an integer quantity When call constructor Then should throw an error', async () => {
+    const error = await getError(async () => new ProductRequestDto({
+      name: NAME, description: DESCRIPTION, price: PRICE, quantity: 1.2,
+    }));
+
+    expect(error).not.toBeInstanceOf(NoErrorThrownError);
+    expect(error).toHaveProperty('message', 'Quantity is mandatory and must to be an integer greater than 0');
+  });
+
+  test('Given an invalid quantity When call constructor Then should throw an error', async () => {
+    const error = await getError(async () => new ProductRequestDto({
+      name: NAME, description: DESCRIPTION, price: PRICE, quantity: 0,
+    }));
+
+    expect(error).not.toBeInstanceOf(NoErrorThrownError);
+    expect(error).toHaveProperty('message', 'Quantity is mandatory and must to be an integer greater than 0');
+  });
+
+  test('Given min allowed quantity When call constructor Then should throw an error', async () => {
+    const productRequestDto = new ProductRequestDto({
+      name: NAME, description: DESCRIPTION, price: PRICE, quantity: 1,
+    });
+
+    expect(productRequestDto.name).toBe(NAME);
+    expect(productRequestDto.description).toBe(DESCRIPTION);
+    expect(productRequestDto.price).toBe(PRICE);
+    expect(productRequestDto.quantity).toBe(1);
+  });
+
   test('Given valid fields When call constructor Then should return an productRequestDto', () => {
     const productRequestDto = new ProductRequestDto({
       name: NAME, description: DESCRIPTION, price: PRICE, quantity: QUANTITY,
