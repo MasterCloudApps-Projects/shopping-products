@@ -239,10 +239,13 @@ components:
         price:
           description: Product price.
           type: number
+          minimum: 0
+          exclusiveMinimum: true
           example: 29.99
         quantity:
           description: Product quantity to add.
           type: integer
+          minimum: 1
           example: 10
     ProductResponse:
       type: object
