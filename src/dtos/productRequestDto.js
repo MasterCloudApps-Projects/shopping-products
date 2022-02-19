@@ -10,6 +10,10 @@ class ProductRequestDto {
       throw new Error('Description is mandatory and must have a minimum lenght of 3');
     }
 
+    if (typeof price === 'undefined' || typeof price === 'string' || price === null || price <= 0) {
+      throw new Error('Price is mandatory and must to be greater than 0');
+    }
+
     return {
       name,
       description,
