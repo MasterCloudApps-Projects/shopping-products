@@ -23,37 +23,44 @@ function findByName(name) {
       '#name': 'name',
     },
     ExpressionAttributeValues: {
-      ':name': name,
+      ':name': name.toUpperCase(),
     },
   };
 
-  docClient.scan(params, (err, data) => {
+  docClient.scan(params, (err, foundProduct) => {
     if (err) {
       console.error('Error finding by name ', name, JSON.stringify(err, null, 2));
       throw err;
+    } else {
+      console.log('Found product:', JSON.stringify(foundProduct, null, 2));
     }
-    return data;
+    return foundProduct;
   });
 }
 
 function create(product) {
-  // eslint-disable-next-line no-param-reassign
-  product.id = getNextSequence();
+  const productToSave = {
+    id: getNextSequence(),
+    name: product.name.toUpperCase(),
+    description: product.description.toUpperCase(),
+    price: product.price,
+    quantity: product.quantity,
+  };
 
   const params = {
     TableName: PRODUCTS_TABLE,
-    Item: product,
+    Item: productToSave,
   };
 
   console.log('Adding a new product...');
-  docClient.updateItem(params, (err, data) => {
+  docClient.updateItem(params, (err, savedProduct) => {
     if (err) {
       console.error('Unable to add product. Error JSON:', JSON.stringify(err, null, 2));
       throw err;
     } else {
-      console.log('Added product:', JSON.stringify(data, null, 2));
+      console.log('Added product:', JSON.stringify(savedProduct, null, 2));
     }
-    return data;
+    return savedProduct;
   });
 }
 
