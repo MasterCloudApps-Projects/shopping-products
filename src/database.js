@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const config = require('../config/config');
 
+const COUNTER_TABLE = 'counter';
 const PRODUCTS_TABLE = 'products';
 
 // CONFIGURE AWS TO USE LOCAL REGION AND DEFAULT ENDPOINT (LOCALHOST) FOR DYNAMODB
@@ -11,14 +12,9 @@ AWS.config.update({
   secretAccessKey: config['dynamo.secretAccessKey'],
 });
 
-// Init DB: Create table if not exist
-
-const initDatabase = async () => {
-  // Create client at function level to have right config
-  const dynamobDB = new AWS.DynamoDB();
-
-  return dynamobDB.createTable({
-    TableName: PRODUCTS_TABLE,
+async function createTable(dynamoDB, tableName) {
+  const params = {
+    TableName: tableName,
     AttributeDefinitions: [
       {
         AttributeName: 'id',
@@ -35,11 +31,26 @@ const initDatabase = async () => {
       ReadCapacityUnits: 5,
       WriteCapacityUnits: 5,
     },
-  }).promise().catch((reason) => {
-    if (reason.message !== 'Cannot create preexisting table') {
+  };
+
+  return dynamoDB.createTable(params).promise()
+    .catch((reason) => {
+      if (reason.message !== 'Cannot create preexisting table') {
+        throw reason;
+      }
+    });
+}
+
+// Init DB: Create table if not exist
+const initDatabase = async () => {
+  // Create client at function level to have right config
+  const dynamoDB = new AWS.DynamoDB();
+
+  return createTable(dynamoDB, COUNTER_TABLE)
+    .then(createTable(dynamoDB, PRODUCTS_TABLE))
+    .catch((reason) => {
       console.error(reason.message);
-    }
-  });
+    });
 };
 
 module.exports = initDatabase;
