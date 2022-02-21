@@ -93,6 +93,8 @@ paths:
                   $ref: '#/components/schemas/ProductResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/NotAllowedError'
         '500':
           $ref: '#/components/responses/InternalError'
           
@@ -121,6 +123,8 @@ paths:
                 $ref: '#/components/schemas/ProductResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/NotAllowedError'
         '404':
           description: product not found.
           content:
