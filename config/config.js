@@ -7,4 +7,7 @@ module.exports = {
   'dynamo.endpoint': process.env.AWS_DYNAMO_ENDPOINT || 'http://localhost:8000',
   'dynamo.accessKeyId': process.env.AWS_ACCESS_KEY_ID || 'xxxx',
   'dynamo.secretAccessKey': process.env.AWS_SECRET_ACCESS_KEY || 'xxxxx',
+
+  secret: process.env.TOKEN_SECRET || 'supersecret',
+  'token.expiration': process.env.TOKEN_EXPIRATION || 300,
 };
