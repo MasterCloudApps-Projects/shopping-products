@@ -11,6 +11,13 @@ jest.mock('../../../src/middlewares/authMiddleware');
 
 const BASE_URL = '/api/v1/products';
 const BEARER_TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6IlVTRVJfUk9MRSIsImlhdCI6MTYzNzM0NTg5OSwiZXhwIjoxNjM3MzQ2MTk5fQ.qnkOMsfHA2YDni_WlgV7yPbEySomqKCkLK8G4t4IeUI';
+const PRODUCT = {
+  id: 1,
+  name: 'product 1',
+  description: 'product 1 description',
+  price: 42.4,
+  quantity: 100,
+};
 
 describe('productRouter POST /api/v1/products tests', () => {
   test('Given an authenticated as admin request with valid body When post and productService return created product Then should return created response', () => {
@@ -19,37 +26,29 @@ describe('productRouter POST /api/v1/products tests', () => {
       return next();
     });
 
-    const product = {
-      id: 1,
-      name: 'product 1',
-      description: 'product 1 description',
-      price: 42.4,
-      quantity: 100,
-    };
-
     productService.create.mockResolvedValue(new ProductResponseDto(
-      product.id,
-      product.name.toUpperCase(),
-      product.description.toUpperCase(),
-      product.price,
-      product.quantity,
+      PRODUCT.id,
+      PRODUCT.name.toUpperCase(),
+      PRODUCT.description.toUpperCase(),
+      PRODUCT.price,
+      PRODUCT.quantity,
     ));
 
     return request
       .post(BASE_URL)
       .set('Authorization', BEARER_TOKEN)
       .send({
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        quantity: product.quantity,
+        name: PRODUCT.name,
+        description: PRODUCT.description,
+        price: PRODUCT.price,
+        quantity: PRODUCT.quantity,
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(201)
       .then((response) => {
-        expect(response.headers['Location'.toLowerCase()]).toBe(`${response.request.url}/${product.id}`);
-        expect(response.body.id).toBe(product.id);
+        expect(response.headers['Location'.toLowerCase()]).toBe(`${response.request.url}/${PRODUCT.id}`);
+        expect(response.body.id).toBe(PRODUCT.id);
       });
   });
 
@@ -64,9 +63,9 @@ describe('productRouter POST /api/v1/products tests', () => {
       .set('Authorization', BEARER_TOKEN)
       .send({
         name: '',
-        description: 'product 1 description',
-        price: 42.4,
-        quantity: 100,
+        description: PRODUCT.description,
+        price: PRODUCT.price,
+        quantity: PRODUCT.quantity,
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -82,10 +81,10 @@ describe('productRouter POST /api/v1/products tests', () => {
     return request
       .post(BASE_URL)
       .send({
-        name: 'product 1',
-        description: 'product 1 description',
-        price: 42.4,
-        quantity: 100,
+        name: PRODUCT.name,
+        description: PRODUCT.description,
+        price: PRODUCT.price,
+        quantity: PRODUCT.quantity,
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -107,10 +106,10 @@ describe('productRouter POST /api/v1/products tests', () => {
       .post(BASE_URL)
       .set('Authorization', BEARER_TOKEN)
       .send({
-        name: 'product 1',
-        description: 'product 1 description',
-        price: 42.4,
-        quantity: 100,
+        name: PRODUCT.name,
+        description: PRODUCT.description,
+        price: PRODUCT.price,
+        quantity: PRODUCT.quantity,
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -132,10 +131,10 @@ describe('productRouter POST /api/v1/products tests', () => {
       .post(BASE_URL)
       .set('Authorization', BEARER_TOKEN)
       .send({
-        name: 'product 1',
-        description: 'product 1 description',
-        price: 42.4,
-        quantity: 100,
+        name: PRODUCT.name,
+        description: PRODUCT.description,
+        price: PRODUCT.price,
+        quantity: PRODUCT.quantity,
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -161,10 +160,10 @@ describe('productRouter POST /api/v1/products tests', () => {
       .post(BASE_URL)
       .set('Authorization', BEARER_TOKEN)
       .send({
-        name: 'product 1',
-        description: 'product 1 description',
-        price: 42.4,
-        quantity: 100,
+        name: PRODUCT.name,
+        description: PRODUCT.description,
+        price: PRODUCT.price,
+        quantity: PRODUCT.quantity,
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
