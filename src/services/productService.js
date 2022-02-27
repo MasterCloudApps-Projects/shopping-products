@@ -57,8 +57,33 @@ async function getById(productId) {
     });
 }
 
+async function update(product) {
+  return productRepository.findByName(product.name)
+    .then((foundProducts) => {
+      if (foundProducts && foundProducts.length === 1 && foundProducts[0].id !== product.id) {
+        console.log(`Product with name ${product.name} already exists`);
+        return null;
+      }
+
+      return productRepository.update(product).then((updatedProduct) => {
+        console.log('Updated product', updatedProduct);
+        return new ProductResponseDto(
+          updatedProduct.id,
+          updatedProduct.name,
+          updatedProduct.description,
+          updatedProduct.price,
+          updatedProduct.quantity,
+        );
+      });
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
+
 module.exports = {
   create,
   getAll,
   getById,
+  update,
 };

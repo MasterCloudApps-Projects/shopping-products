@@ -13,6 +13,13 @@ const product = {
   price: 19.99,
   quantity: 5,
 };
+const secondProduct = {
+  id: 2,
+  name: 'SWATER',
+  description: 'NICE SWEATER',
+  price: 12.5,
+  quantity: 10,
+};
 const errorMessage = 'Database connection lost.';
 
 describe('productService create function tests', () => {
@@ -76,13 +83,6 @@ describe('productService get all function tests', () => {
   });
 
   test('Given existing products When call getAll Then should return array with products', () => {
-    const secondProduct = {
-      id: 2,
-      name: 'SWATER',
-      description: 'NICE SWEATER',
-      price: 12.5,
-      quantity: 10,
-    };
     const findAll = productRepository.findAll.mockResolvedValue([
       product,
       secondProduct,
@@ -147,12 +147,110 @@ describe('productService get by id function tests', () => {
       });
   });
 
-  test('Given existin product with passed id When call getById and repository throws error Then should throw error', async () => {
+  test('Given existing product with passed id When call getById and repository throws error Then should throw error', async () => {
     productRepository.findById.mockImplementation(() => {
       throw new Error(errorMessage);
     });
 
     const error = await getError(async () => productService.getById(22));
+
+    expect(error).not.toBeInstanceOf(NoErrorThrownError);
+    expect(error).toHaveProperty('message', errorMessage);
+  });
+});
+
+describe('productService update function tests', () => {
+  test('Given product to update with already existing product with that name When call update Then should return null', async () => {
+    productRepository.findByName.mockResolvedValue([
+      {
+        id: secondProduct.id,
+        name: product.name,
+        description: product.description,
+        price: secondProduct.price,
+        quantity: secondProduct.quantity,
+      },
+    ]);
+
+    return productService.update(product)
+      .then((updatedProduct) => {
+        expect(updatedProduct).toBeNull();
+      });
+  });
+
+  test('Given product to update with same previous name When call update Then should return updated product', async () => {
+    productRepository.findByName.mockResolvedValue([product]);
+
+    const productToUpdate = {
+      id: product.id,
+      name: product.name,
+      description: 'Updated description',
+      price: 77.66,
+      quantity: 54,
+    };
+
+    const productResponseDto = new ProductResponseDto(
+      productToUpdate.id,
+      productToUpdate.name.toUpperCase(),
+      productToUpdate.description.toUpperCase(),
+      productToUpdate.price,
+      productToUpdate.quantity,
+    );
+
+    productRepository.update.mockResolvedValue({
+      id: productToUpdate.id,
+      name: productToUpdate.name.toUpperCase(),
+      description: productToUpdate.description.toUpperCase(),
+      price: productToUpdate.price,
+      quantity: productToUpdate.quantity,
+    });
+
+    return productService.update(productToUpdate)
+      .then((updatedProduct) => {
+        expect(updatedProduct).toEqual(productResponseDto);
+      });
+  });
+
+  test('Given product to update with different name When call update Then should return updated product', async () => {
+    productRepository.findByName.mockResolvedValue([]);
+
+    const productToUpdate = {
+      id: product.id,
+      name: 'Updated name',
+      description: 'Updated description',
+      price: 77.66,
+      quantity: 54,
+    };
+
+    const productResponseDto = new ProductResponseDto(
+      productToUpdate.id,
+      productToUpdate.name.toUpperCase(),
+      productToUpdate.description.toUpperCase(),
+      productToUpdate.price,
+      productToUpdate.quantity,
+    );
+
+    productRepository.update.mockResolvedValue({
+      id: productToUpdate.id,
+      name: productToUpdate.name.toUpperCase(),
+      description: productToUpdate.description.toUpperCase(),
+      price: productToUpdate.price,
+      quantity: productToUpdate.quantity,
+    });
+
+    return productService.update(productToUpdate)
+      .then((updatedProduct) => {
+        expect(updatedProduct).toEqual(productResponseDto);
+      });
+  });
+
+  test('Given product to update When call update and repository throws error Then should throw error', async () => {
+    productRepository.findByName.mockResolvedValue([product]);
+
+    productRepository.update.mockImplementation(() => {
+      throw new Error(errorMessage);
+    });
+
+    const error = await getError(async () => productService.update(product));
 
     expect(error).not.toBeInstanceOf(NoErrorThrownError);
     expect(error).toHaveProperty('message', errorMessage);

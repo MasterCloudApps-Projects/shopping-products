@@ -122,9 +122,38 @@ async function findById(productId) {
     });
 }
 
+async function update(product) {
+  const params = {
+    TableName: PRODUCTS_TABLE,
+    Key: {
+      id: product.id,
+    },
+    UpdateExpression: 'set name = :n, description=:d, price=:p, quantity=:q',
+    ExpressionAttributeValues: {
+      ':n': product.name.toUpperCase(),
+      ':d': product.description.toUpperCase(),
+      ':p': product.price,
+      ':q': product.quantity,
+    },
+    ReturnValues: 'UPDATED_NEW',
+  };
+
+  const docClient = new AWS.DynamoDB.DocumentClient();
+  return docClient.update(params).promise()
+    .then((updatedProduct) => {
+      console.log('Found product:', JSON.stringify(updatedProduct, null, 2));
+      return updatedProduct.Items;
+    })
+    .catch((err) => {
+      console.error('Error updating product', product, JSON.stringify(err, null, 2));
+      throw err;
+    });
+}
+
 module.exports = {
   findByName,
   create,
   findAll,
   findById,
+  update,
 };
