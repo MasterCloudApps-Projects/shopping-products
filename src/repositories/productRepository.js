@@ -128,7 +128,10 @@ async function update(product) {
     Key: {
       id: product.id,
     },
-    UpdateExpression: 'set name = :n, description=:d, price=:p, quantity=:q',
+    UpdateExpression: 'set #name = :n, description=:d, price=:p, quantity=:q',
+    ExpressionAttributeNames: {
+      '#name': 'name',
+    },
     ExpressionAttributeValues: {
       ':n': product.name.toUpperCase(),
       ':d': product.description.toUpperCase(),
@@ -141,8 +144,10 @@ async function update(product) {
   const docClient = new AWS.DynamoDB.DocumentClient();
   return docClient.update(params).promise()
     .then((updatedProduct) => {
-      console.log('Found product:', JSON.stringify(updatedProduct, null, 2));
-      return updatedProduct.Items;
+      console.log('Updated product:', JSON.stringify(updatedProduct, null, 2));
+      const updatedProductWithId = updatedProduct.Attributes;
+      updatedProductWithId.id = product.id;
+      return updatedProductWithId;
     })
     .catch((err) => {
       console.error('Error updating product', product, JSON.stringify(err, null, 2));

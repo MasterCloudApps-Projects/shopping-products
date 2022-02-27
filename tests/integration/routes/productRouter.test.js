@@ -69,6 +69,12 @@ const products = [
     price: 8.32,
     quantity: 27,
   },
+  {
+    name: 'product 6',
+    description: 'product 6 description',
+    price: 108.05,
+    quantity: 4,
+  },
 ];
 
 describe('productRouter POST /api/v1/poducts tests', () => {
@@ -168,6 +174,40 @@ describe('productRouter GET /api/v1/poducts/:id tests', () => {
         expect(response.body.description).toBe(products[4].description.toUpperCase());
         expect(response.body.price).toBe(products[4].price);
         expect(response.body.quantity).toBe(products[4].quantity);
+      });
+  });
+});
+
+describe('productRouter PUT /api/v1/poducts/:id tests', () => {
+  test('Given adding a product When update product Then should return updated product info', async () => {
+    let createdProductId;
+    await request.post(BASE_URL)
+      .set('Authorization', adminToken)
+      .set('Accept', 'application/json')
+      .send(products[5])
+      .expect(201)
+      .then((response) => {
+        createdProductId = response.body.id;
+      });
+
+    const updateProductRequest = {
+      name: 'Updated name',
+      description: 'Updated description',
+      price: 1.2,
+      quantity: 1,
+    };
+
+    return request.put(`${BASE_URL}/${createdProductId}`)
+      .set('Authorization', adminToken)
+      .set('Accept', 'application/json')
+      .send(updateProductRequest)
+      .expect(200)
+      .then((response) => {
+        expect(response.body.id).toBe(createdProductId);
+        expect(response.body.name).toBe(updateProductRequest.name.toUpperCase());
+        expect(response.body.description).toBe(updateProductRequest.description.toUpperCase());
+        expect(response.body.price).toBe(updateProductRequest.price);
+        expect(response.body.quantity).toBe(updateProductRequest.quantity);
       });
   });
 });
