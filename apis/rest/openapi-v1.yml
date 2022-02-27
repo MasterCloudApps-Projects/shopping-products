@@ -9,7 +9,7 @@ servers:
 paths:
   /products:
     post:
-      description: Add a product and returns the product ID.
+      description: Allows to admin add a product and returns the product ID.
       tags:
         - products
       operationId: createProduct
@@ -76,7 +76,7 @@ paths:
           $ref: '#/components/responses/InternalError'
 
     get:
-      description: Get all products.
+      description: Get all products for admin and user role.
       tags:
         - products
       operationId: getAllProducts
@@ -100,7 +100,7 @@ paths:
           
   /products/{productId}:  
     get:
-      description: Get product info by ID.
+      description: Get product info by ID for admin and user role.
       tags:
         - products
       operationId: getProductById
@@ -137,7 +137,7 @@ paths:
           $ref: '#/components/responses/InternalError'
 
     put:
-      description: Update product.
+      description: Alows admin to update product.
       tags:
         - products
       operationId: updateProduct
