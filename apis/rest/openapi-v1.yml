@@ -181,6 +181,14 @@ paths:
                 $ref: '#/components/schemas/Error'
               example:
                 error: product not found.
+        '409':
+          description: Product already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: A product with that name already exists.
         '500':
           $ref: '#/components/responses/InternalError'
 
