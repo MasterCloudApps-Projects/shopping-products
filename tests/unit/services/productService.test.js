@@ -97,4 +97,15 @@ describe('productService get all function tests', () => {
         ]);
       });
   });
+
+  test('Given existing products When call getAll and repository throws error Then should throw error', async () => {
+    productRepository.findAll.mockImplementation(() => {
+      throw new Error(errorMessage);
+    });
+
+    const error = await getError(async () => productService.getAll());
+
+    expect(error).not.toBeInstanceOf(NoErrorThrownError);
+    expect(error).toHaveProperty('message', errorMessage);
+  });
 });
