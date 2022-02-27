@@ -13,6 +13,7 @@
     },
     "dependencies": {
         "aws-sdk": "^2.1077.0",
+        "dynamodb-atomic-counter": "^0.1.1",
         "express": "^4.17.1",
         "jsonwebtoken": "^8.5.1"
     },
@@ -24,7 +25,8 @@
         "husky": "^7.0.4",
         "jest": "^27.3.1",
         "nodemon": "^2.0.14",
-        "supertest": "^6.1.6"
+        "supertest": "^6.1.6",
+        "testcontainers": "^8.2.0"
     },
     "repository": {
         "type": "git",

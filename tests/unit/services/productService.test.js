@@ -24,7 +24,7 @@ describe('productService create function tests', () => {
   });
 
   test('Given an existing product with that name When call create Then should not create product and return null', () => {
-    productRepository.findByName.mockResolvedValue(product);
+    productRepository.findByName.mockResolvedValue([product]);
 
     return productService.create(productRequestDto)
       .then((createdProduct) => {
@@ -34,7 +34,7 @@ describe('productService create function tests', () => {
   });
 
   test('Given an non existing product with that name When call create Then should save product and return it', () => {
-    productRepository.findByName.mockResolvedValue(null);
+    productRepository.findByName.mockResolvedValue([]);
     productRepository.create.mockResolvedValue(product);
 
     return productService.create(productRequestDto)

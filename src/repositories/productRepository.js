@@ -1,21 +1,36 @@
 const AWS = require('aws-sdk');
+const atomicCounter = require('dynamodb-atomic-counter');
+const config = require('../../config/config');
 
-const docClient = new AWS.DynamoDB.DocumentClient();
-const COUNTER_TABLE = 'counter';
 const PRODUCTS_TABLE = 'products';
 
+let atomicCounterConfigured = false;
+
 function getNextSequence() {
-  return docClient.update({
-    TableName: COUNTER_TABLE,
-    Key: { Key: 'counter' },
-    UpdateExpression: 'SET #val = if_not_exists(#val, :zero) + :incr',
-    ExpressionAttributeNames: { '#val': 'Value' },
-    ExpressionAttributeValues: { ':incr': 1, ':zero': 0 },
-    ReturnValues: 'UPDATED_NEW',
-  });
+  if (!atomicCounterConfigured) {
+    atomicCounter.config.update({
+      region: config['dynamo.region'],
+      endpoint: config['dynamo.endpoint'],
+      accessKeyId: config['dynamo.accessKeyId'],
+      secretAccessKey: config['dynamo.secretAccessKey'],
+    });
+    atomicCounterConfigured = true;
+  }
+
+  return atomicCounter.increment(PRODUCTS_TABLE)
+    .done((value) => {
+      console.log('Incremented sequence value ', JSON.stringify(value, null, 2));
+      return value;
+    })
+    .fail((error) => {
+      console.log('Increment operation failed: ', JSON.stringify(error, null, 2));
+      throw error;
+    }).always((valueOrError) => {
+      console.log('Increment operation finished', JSON.stringify(valueOrError, null, 2));
+    });
 }
 
-function findByName(name) {
+async function findByName(name) {
   const params = {
     TableName: PRODUCTS_TABLE,
     FilterExpression: '#name = :name',
@@ -27,41 +42,43 @@ function findByName(name) {
     },
   };
 
-  docClient.scan(params, (err, foundProduct) => {
-    if (err) {
+  const docClient = new AWS.DynamoDB.DocumentClient();
+  return docClient.scan(params).promise()
+    .then((foundProduct) => {
+      console.log('Found product:', JSON.stringify(foundProduct, null, 2));
+      return foundProduct.Items;
+    })
+    .catch((err) => {
       console.error('Error finding by name ', name, JSON.stringify(err, null, 2));
       throw err;
-    } else {
-      console.log('Found product:', JSON.stringify(foundProduct, null, 2));
-    }
-    return foundProduct;
-  });
+    });
 }
 
-function create(product) {
+async function create(product) {
+  const productId = await getNextSequence();
   const productToSave = {
-    id: getNextSequence(),
+    id: productId,
     name: product.name.toUpperCase(),
     description: product.description.toUpperCase(),
     price: product.price,
     quantity: product.quantity,
   };
-
   const params = {
     TableName: PRODUCTS_TABLE,
     Item: productToSave,
   };
 
+  const docClient = new AWS.DynamoDB.DocumentClient();
   console.log('Adding a new product...');
-  docClient.updateItem(params, (err, savedProduct) => {
-    if (err) {
+  return docClient.put(params).promise()
+    .then(() => {
+      console.log('Added product:', JSON.stringify(productToSave, null, 2));
+      return productToSave;
+    })
+    .catch((err) => {
       console.error('Unable to add product. Error JSON:', JSON.stringify(err, null, 2));
       throw err;
-    } else {
-      console.log('Added product:', JSON.stringify(savedProduct, null, 2));
-    }
-    return savedProduct;
-  });
+    });
 }
 
 module.exports = {
