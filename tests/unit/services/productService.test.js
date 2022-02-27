@@ -84,8 +84,20 @@ describe('productService get all function tests', () => {
       quantity: 10,
     };
     const findAll = productRepository.findAll.mockResolvedValue([
-      product,
-      secondProduct,
+      new ProductResponseDto(
+        product.id,
+        product.name,
+        product.description,
+        product.price,
+        product.quantity,
+      ),
+      new ProductResponseDto(
+        secondProduct.id,
+        secondProduct.name,
+        secondProduct.description,
+        secondProduct.price,
+        secondProduct.quantity,
+      ),
     ]);
 
     return productService.getAll()

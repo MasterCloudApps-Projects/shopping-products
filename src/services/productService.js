@@ -32,7 +32,13 @@ async function create(product) {
 
 async function getAll() {
   return productRepository.findAll()
-    .then((foundProducts) => foundProducts)
+    .then((foundProducts) => foundProducts.map((product) => new ProductResponseDto(
+      product.id,
+      product.name,
+      product.description,
+      product.price,
+      product.quantity,
+    )))
     .catch((error) => {
       throw error;
     });
