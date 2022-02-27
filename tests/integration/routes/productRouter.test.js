@@ -7,6 +7,7 @@ const config = require('../../../config/config');
 
 const BASE_URL = '/api/v1/products';
 let adminToken;
+let userToken;
 
 const request = supertest(app);
 
@@ -28,34 +29,114 @@ beforeAll(async () => {
   adminToken = `Bearer ${jwt.sign({ id: 1, role: 'ADMIN_ROLE' }, config.secret, {
     expiresIn: 300,
   })}`;
-  // userToken = `Bearer ${jwt.sign({ id: 2, role: 'USER_ROLE' }, config.secret, {
-  //   expiresIn: 300,
-  // })}`;
+  userToken = `Bearer ${jwt.sign({ id: 2, role: 'USER_ROLE' }, config.secret, {
+    expiresIn: 300,
+  })}`;
 });
 
 afterAll(async () => {
   await dynamoContainer.stop();
 });
 
+const products = [
+  {
+    name: 'product 1',
+    description: 'product 1 description',
+    price: 42.4,
+    quantity: 100,
+  },
+  {
+    name: 'product 2',
+    description: 'product 2 description',
+    price: 24.55,
+    quantity: 12,
+  },
+  {
+    name: 'product 3',
+    description: 'product 3 description',
+    price: 9.99,
+    quantity: 20,
+  },
+  {
+    name: 'product 4',
+    description: 'product 4 description',
+    price: 4.85,
+    quantity: 2,
+  },
+];
+
 describe('productRouter POST /api/v1/poducts tests', () => {
   it('Given 2 products with same name When post products Then should create first and return an error for the second', async () => {
-    const productRequest = {
-      name: 'product 1',
-      description: 'product 1 description',
-      price: 42.4,
-      quantity: 100,
-    };
     await request.post(BASE_URL)
       .set('Authorization', adminToken)
-      .send(productRequest)
+      .send(products[0])
       .set('Accept', 'application/json')
       .expect(201);
     return request.post(BASE_URL)
       .set('Authorization', adminToken)
-      .send(productRequest)
+      .send(products[0])
       .expect(409)
       .then((response) => {
         expect(response.body.error).toBe('Already exists a product with that name');
+      });
+  });
+
+  test('Given n products initially When add a new product Then get all returns n+1 elements', async () => {
+    let getResponse = await request.get(BASE_URL)
+      .set('Authorization', userToken);
+    const initialElements = getResponse.body.length;
+
+    await request.post(BASE_URL)
+      .set('Authorization', adminToken)
+      .set('Accept', 'application/json')
+      .send(products[1])
+      .expect(201)
+      .then((response) => {
+        expect(response.body.id).not.toBeNull();
+        expect(response.body.id).toBeDefined();
+      });
+
+    getResponse = await request.get(BASE_URL)
+      .set('Authorization', userToken);
+    expect(getResponse.body.length).toBe(initialElements + 1);
+  });
+});
+
+describe('productRouter GET /api/v1/poducts tests', () => {
+  test('Given adding 2 products When get all products should return at least that 2 elements', async () => {
+    await request.post(BASE_URL)
+      .set('Authorization', adminToken)
+      .set('Accept', 'application/json')
+      .send(products[2])
+      .expect(201);
+    await request.post(BASE_URL)
+      .set('Authorization', adminToken)
+      .set('Accept', 'application/json')
+      .send(products[3])
+      .expect(201);
+
+    return request.get(BASE_URL)
+      .set('Authorization', userToken)
+      .expect(200)
+      .then((response) => {
+        expect(response.body.length).toBeGreaterThanOrEqual(2);
+
+        expect(response.body).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              name: products[2].name.toUpperCase(),
+              description: products[2].description.toUpperCase(),
+              price: products[2].price,
+              quantity: products[2].quantity,
+            }),
+            expect.objectContaining({
+              name: products[3].name.toUpperCase(),
+              description: products[3].description.toUpperCase(),
+              price: products[3].price,
+              quantity: products[3].quantity,
+            }),
+          ]),
+        );
       });
   });
 });
