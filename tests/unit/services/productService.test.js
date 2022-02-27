@@ -63,3 +63,38 @@ describe('productService create function tests', () => {
     expect(error).toHaveProperty('message', errorMessage);
   });
 });
+
+describe('productService get all function tests', () => {
+  test('Given non existing products When call getAll Then should return empty array', () => {
+    const findAll = productRepository.findAll.mockResolvedValue([]);
+
+    return productService.getAll()
+      .then((products) => {
+        expect(findAll).toHaveBeenCalled();
+        expect(products).toEqual([]);
+      });
+  });
+
+  test('Given existing products When call getAll Then should return array with products', () => {
+    const secondProduct = {
+      id: 2,
+      name: 'SWATER',
+      description: 'NICE SWEATER',
+      price: 12.5,
+      quantity: 10,
+    };
+    const findAll = productRepository.findAll.mockResolvedValue([
+      product,
+      secondProduct,
+    ]);
+
+    return productService.getAll()
+      .then((products) => {
+        expect(findAll).toHaveBeenCalled();
+        expect(products).toEqual([
+          product,
+          secondProduct,
+        ]);
+      });
+  });
+});

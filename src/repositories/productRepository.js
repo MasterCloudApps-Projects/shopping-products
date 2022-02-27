@@ -81,7 +81,25 @@ async function create(product) {
     });
 }
 
+async function findAll() {
+  const params = {
+    TableName: PRODUCTS_TABLE,
+  };
+
+  const docClient = new AWS.DynamoDB.DocumentClient();
+  return docClient.scan(params).promise()
+    .then((foundProducts) => {
+      console.log('Found products:', JSON.stringify(foundProducts, null, 2));
+      return foundProducts.Items;
+    })
+    .catch((err) => {
+      console.error('Error finding products ', JSON.stringify(err, null, 2));
+      throw err;
+    });
+}
+
 module.exports = {
   findByName,
   create,
+  findAll,
 };

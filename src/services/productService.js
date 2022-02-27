@@ -30,6 +30,15 @@ async function create(product) {
     });
 }
 
+async function getAll() {
+  return productRepository.findAll()
+    .then((foundProducts) => foundProducts)
+    .catch((error) => {
+      throw error;
+    });
+}
+
 module.exports = {
   create,
+  getAll,
 };
