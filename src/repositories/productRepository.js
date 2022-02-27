@@ -98,8 +98,33 @@ async function findAll() {
     });
 }
 
+async function findById(productId) {
+  const params = {
+    TableName: PRODUCTS_TABLE,
+    KeyConditionExpression: '#id = :productId',
+    ExpressionAttributeNames: {
+      '#id': 'id',
+    },
+    ExpressionAttributeValues: {
+      ':productId': productId,
+    },
+  };
+
+  const docClient = new AWS.DynamoDB.DocumentClient();
+  return docClient.query(params).promise()
+    .then((foundProduct) => {
+      console.log('Found product:', JSON.stringify(foundProduct, null, 2));
+      return foundProduct.Items;
+    })
+    .catch((err) => {
+      console.error('Error finding by id ', productId, JSON.stringify(err, null, 2));
+      throw err;
+    });
+}
+
 module.exports = {
   findByName,
   create,
   findAll,
+  findById,
 };

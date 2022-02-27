@@ -84,28 +84,28 @@ describe('productService get all function tests', () => {
       quantity: 10,
     };
     const findAll = productRepository.findAll.mockResolvedValue([
-      new ProductResponseDto(
-        product.id,
-        product.name,
-        product.description,
-        product.price,
-        product.quantity,
-      ),
-      new ProductResponseDto(
-        secondProduct.id,
-        secondProduct.name,
-        secondProduct.description,
-        secondProduct.price,
-        secondProduct.quantity,
-      ),
+      product,
+      secondProduct,
     ]);
 
     return productService.getAll()
       .then((products) => {
         expect(findAll).toHaveBeenCalled();
         expect(products).toEqual([
-          product,
-          secondProduct,
+          new ProductResponseDto(
+            product.id,
+            product.name,
+            product.description,
+            product.price,
+            product.quantity,
+          ),
+          new ProductResponseDto(
+            secondProduct.id,
+            secondProduct.name,
+            secondProduct.description,
+            secondProduct.price,
+            secondProduct.quantity,
+          ),
         ]);
       });
   });
@@ -116,6 +116,43 @@ describe('productService get all function tests', () => {
     });
 
     const error = await getError(async () => productService.getAll());
+
+    expect(error).not.toBeInstanceOf(NoErrorThrownError);
+    expect(error).toHaveProperty('message', errorMessage);
+  });
+});
+
+describe('productService get by id function tests', () => {
+  test('Given non existing product with passed id When call getById Then should return null', () => {
+    productRepository.findById.mockResolvedValue([]);
+
+    return productService.getById(999)
+      .then((foundProduct) => {
+        expect(foundProduct).toBeNull();
+      });
+  });
+
+  test('Given existing product with passed id When call getById Then should return the product', () => {
+    productRepository.findById.mockResolvedValue([product]);
+
+    return productService.getById(11)
+      .then((foundProduct) => {
+        expect(foundProduct).toEqual(new ProductResponseDto(
+          product.id,
+          product.name,
+          product.description,
+          product.price,
+          product.quantity,
+        ));
+      });
+  });
+
+  test('Given existin product with passed id When call getById and repository throws error Then should throw error', async () => {
+    productRepository.findById.mockImplementation(() => {
+      throw new Error(errorMessage);
+    });
+
+    const error = await getError(async () => productService.getById(22));
 
     expect(error).not.toBeInstanceOf(NoErrorThrownError);
     expect(error).toHaveProperty('message', errorMessage);

@@ -3,8 +3,8 @@ const ProductResponseDto = require('../dtos/productResponseDto');
 
 async function create(product) {
   return productRepository.findByName(product.name)
-    .then((foundProduct) => {
-      if (foundProduct && foundProduct.length > 0) {
+    .then((foundProducts) => {
+      if (foundProducts && foundProducts.length > 0) {
         console.log(`Product with name ${product.name} already exists`);
         return null;
       }
@@ -44,7 +44,21 @@ async function getAll() {
     });
 }
 
+async function getById(productId) {
+  return productRepository.findById(productId)
+    .then((foundProducts) => {
+      if (foundProducts && foundProducts.length === 1) {
+        return foundProducts[0];
+      }
+      return null;
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
+
 module.exports = {
   create,
   getAll,
+  getById,
 };
