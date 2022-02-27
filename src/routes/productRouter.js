@@ -29,4 +29,14 @@ router.post('/', verifyToken, verifyRoleOfAuthenticatedUser, async (req, res) =>
   }
 });
 
+router.get('/', verifyToken, async (req, res) => {
+  try {
+    const products = await productService.getAll();
+    return res.status(200).send(products);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ error: error.message });
+  }
+});
+
 module.exports = router;
