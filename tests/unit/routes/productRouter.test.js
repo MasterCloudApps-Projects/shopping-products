@@ -319,3 +319,129 @@ describe('productRouter GET /api/v1/products tests', () => {
       });
   });
 });
+
+describe('productRouter GET /api/v1/products/:id tests', () => {
+  test('Given an authenticated as admin request When get by id and productService return a product Then should return ok response', () => {
+    verifyToken.mockImplementation((req, res, next) => {
+      req.role = 'ADMIN_ROLE';
+      return next();
+    });
+
+    productService.getById.mockResolvedValue(
+      new ProductResponseDto(
+        PRODUCT.id,
+        PRODUCT.name.toUpperCase(),
+        PRODUCT.description.toUpperCase(),
+        PRODUCT.price,
+        PRODUCT.quantity,
+      ),
+    );
+
+    return request
+      .get(`${BASE_URL}/${PRODUCT.id}`)
+      .set('Authorization', BEARER_TOKEN)
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then((response) => {
+        expect(response.body.id).toBe(PRODUCT.id);
+        expect(response.body.name).toBe(PRODUCT.name.toUpperCase());
+        expect(response.body.description).toBe(PRODUCT.description.toUpperCase());
+        expect(response.body.price).toBe(PRODUCT.price);
+        expect(response.body.quantity).toBe(PRODUCT.quantity);
+      });
+  });
+
+  test('Given an authenticated as user request When get by id and productService return an product Then should return ok response', () => {
+    verifyToken.mockImplementation((req, res, next) => {
+      req.role = 'USER_ROLE';
+      return next();
+    });
+
+    productService.getById.mockResolvedValue(
+      new ProductResponseDto(
+        PRODUCT.id,
+        PRODUCT.name.toUpperCase(),
+        PRODUCT.description.toUpperCase(),
+        PRODUCT.price,
+        PRODUCT.quantity,
+      ),
+    );
+
+    return request
+      .get(`${BASE_URL}/${PRODUCT.id}`)
+      .set('Authorization', BEARER_TOKEN)
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then((response) => {
+        expect(response.body.id).toBe(PRODUCT.id);
+        expect(response.body.name).toBe(PRODUCT.name.toUpperCase());
+        expect(response.body.description).toBe(PRODUCT.description.toUpperCase());
+        expect(response.body.price).toBe(PRODUCT.price);
+        expect(response.body.quantity).toBe(PRODUCT.quantity);
+      });
+  });
+
+  test('Given an unauthenticated request When get by id Then should return unathorized response', () => {
+    verifyToken.mockImplementation((req, res) => res.status(401).send({ error: 'No token provided.' }));
+
+    return request
+      .get(`${BASE_URL}/${PRODUCT.id}`)
+      .expect('Content-Type', /json/)
+      .expect(401)
+      .then((response) => {
+        expect(response.body.error).toBe('No token provided.');
+      });
+  });
+
+  test('Given a request with invalid token When get by id Then should return not allowed response', () => {
+    verifyToken.mockImplementation((req, res) => res.status(403).send({ error: 'Invalid or expired token.' }));
+
+    return request
+      .get(`${BASE_URL}/${PRODUCT.id}`)
+      .set('Authorization', BEARER_TOKEN)
+      .expect('Content-Type', /json/)
+      .expect(403)
+      .then((response) => {
+        expect(response.body.error).toBe('Invalid or expired token.');
+      });
+  });
+
+  test('Given an authenticated as user request When get by id and productService return null product Then should return not found response', () => {
+    verifyToken.mockImplementation((req, res, next) => {
+      req.role = 'USER_ROLE';
+      return next();
+    });
+
+    productService.getById.mockResolvedValue(null);
+
+    return request
+      .get(`${BASE_URL}/${PRODUCT.id}`)
+      .set('Authorization', BEARER_TOKEN)
+      .expect('Content-Type', /json/)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.error).toBe('Product not found');
+      });
+  });
+
+  test('Given an authenticated as admin request When get by id and productService throws error Then should return internal server error response', () => {
+    const errorMessage = 'Database connection lost.';
+
+    verifyToken.mockImplementation((req, res, next) => {
+      req.role = 'ADMIN_ROLE';
+      return next();
+    });
+
+    productService.getById.mockImplementation(() => {
+      throw new Error(errorMessage);
+    });
+
+    return request
+      .get(`${BASE_URL}/${PRODUCT.id}`)
+      .expect('Content-Type', /json/)
+      .expect(500)
+      .then((response) => {
+        expect(response.body.error).toBe(errorMessage);
+      });
+  });
+});

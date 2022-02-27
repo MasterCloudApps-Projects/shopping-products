@@ -39,4 +39,19 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
+router.get('/:id', verifyToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const product = await productService.getById(id);
+    if (!product) {
+      return res.status(404).send({ error: 'Product not found' });
+    }
+    return res.status(200).send(product);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ error: error.message });
+  }
+});
+
 module.exports = router;
