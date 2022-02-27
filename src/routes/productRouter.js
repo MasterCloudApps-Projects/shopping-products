@@ -40,10 +40,13 @@ router.get('/', verifyToken, async (req, res) => {
 });
 
 router.get('/:id', verifyToken, async (req, res) => {
-  const { id } = req.params;
+  const productId = parseInt(req.params.id, 10);
+  if (Number.isNaN(productId)) {
+    return res.status(400).send({ error: 'Id must be an integer' });
+  }
 
   try {
-    const product = await productService.getById(id);
+    const product = await productService.getById(productId);
     if (!product) {
       return res.status(404).send({ error: 'Product not found' });
     }

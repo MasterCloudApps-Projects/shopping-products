@@ -63,6 +63,12 @@ const products = [
     price: 4.85,
     quantity: 2,
   },
+  {
+    name: 'product 5',
+    description: 'product 5 description',
+    price: 8.32,
+    quantity: 27,
+  },
 ];
 
 describe('productRouter POST /api/v1/poducts tests', () => {
@@ -103,7 +109,7 @@ describe('productRouter POST /api/v1/poducts tests', () => {
 });
 
 describe('productRouter GET /api/v1/poducts tests', () => {
-  test('Given adding 2 products When get all products should return at least that 2 elements', async () => {
+  test('Given adding 2 products When get all products Then should return at least that 2 elements', async () => {
     await request.post(BASE_URL)
       .set('Authorization', adminToken)
       .set('Accept', 'application/json')
@@ -137,6 +143,31 @@ describe('productRouter GET /api/v1/poducts tests', () => {
             }),
           ]),
         );
+      });
+  });
+});
+
+describe('productRouter GET /api/v1/poducts/:id tests', () => {
+  test('Given adding a product When get product by id Then should return added product info', async () => {
+    let createdProductId;
+    await request.post(BASE_URL)
+      .set('Authorization', adminToken)
+      .set('Accept', 'application/json')
+      .send(products[4])
+      .expect(201)
+      .then((response) => {
+        createdProductId = response.body.id;
+      });
+
+    return request.get(`${BASE_URL}/${createdProductId}`)
+      .set('Authorization', userToken)
+      .expect(200)
+      .then((response) => {
+        expect(response.body.id).toBe(createdProductId);
+        expect(response.body.name).toBe(products[4].name.toUpperCase());
+        expect(response.body.description).toBe(products[4].description.toUpperCase());
+        expect(response.body.price).toBe(products[4].price);
+        expect(response.body.quantity).toBe(products[4].quantity);
       });
   });
 });

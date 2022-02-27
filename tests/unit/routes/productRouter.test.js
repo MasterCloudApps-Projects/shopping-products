@@ -381,6 +381,22 @@ describe('productRouter GET /api/v1/products/:id tests', () => {
       });
   });
 
+  test('Given an authenticated as user request with invalid id Then should return bad request response', () => {
+    verifyToken.mockImplementation((req, res, next) => {
+      req.role = 'USER_ROLE';
+      return next();
+    });
+
+    return request
+      .get(`${BASE_URL}/NanId`)
+      .set('Authorization', BEARER_TOKEN)
+      .expect('Content-Type', /json/)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.error).toBe('Id must be an integer');
+      });
+  });
+
   test('Given an unauthenticated request When get by id Then should return unathorized response', () => {
     verifyToken.mockImplementation((req, res) => res.status(401).send({ error: 'No token provided.' }));
 
