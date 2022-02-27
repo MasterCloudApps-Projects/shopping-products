@@ -57,4 +57,40 @@ router.get('/:id', verifyToken, async (req, res) => {
   }
 });
 
+router.put('/:id', verifyToken, verifyRoleOfAuthenticatedUser, async (req, res) => {
+  const productId = parseInt(req.params.id, 10);
+  if (Number.isNaN(productId)) {
+    return res.status(400).send({ error: 'Id must be an integer' });
+  }
+
+  let productRequestDto;
+  try {
+    productRequestDto = new ProductRequestDto(req.body);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({ error: error.message });
+  }
+
+  try {
+    const productToUpdate = await productService.getById(productId);
+    if (!productToUpdate) {
+      return res.status(404).send({ error: 'Product not found' });
+    }
+
+    productToUpdate.name = productRequestDto.name;
+    productToUpdate.description = productRequestDto.description;
+    productToUpdate.price = productRequestDto.price;
+    productToUpdate.quantity = productRequestDto.quantity;
+
+    const updatedProduct = await productService.update(productToUpdate);
+    if (!updatedProduct) {
+      return res.status(409).send({ error: 'Already exists a product with that name' });
+    }
+    return res.status(200).send(updatedProduct);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ error: error.message });
+  }
+});
+
 module.exports = router;
