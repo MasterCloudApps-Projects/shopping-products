@@ -1,0 +1,1209 @@
+{
+	"info": {
+		"_postman_id": "87868fb4-b08b-4f16-923d-72f0bbbc78d2",
+		"name": "products API",
+		"description": "Master cloud apps TFM products API.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "products",
+			"item": [
+				{
+					"name": "create Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check and set created product id\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.expect(responseJson.id).to.be.a('number');\r",
+									"    pm.environment.set(\"productId\", responseJson.id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Location header is present\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"    pm.response.to.be.header(\"Location\", pm.environment.get(\"baseUrl\")+'/products/'+pm.environment.get(\"productId\"));\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{productName}}\",\n  \"description\": \"product description\",\n  \"price\": 12.00,\n  \"quantity\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						},
+						"description": "Add a product and returns the product ID."
+					},
+					"response": [
+						{
+							"name": "Created product",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/products",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Location",
+									"value": "https://localhost:3445/v1/products/1",
+									"description": "(Required) URL to get the newly-created product."
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 1\n}"
+						},
+						{
+							"name": "Bad request.",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/products",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Bad request.\"\n}"
+						},
+						{
+							"name": "Access token is missing or invalid.",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/products",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Access token is missing or invalid.\"\n}"
+						},
+						{
+							"name": "Logged user doesn't have permission to access the resource.",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/products",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"You don't have permissions to access this resource.\"\n}"
+						},
+						{
+							"name": "Product already exists.",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/products",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"A product with that name already exists.\"\n}"
+						},
+						{
+							"name": "Internal error.",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/products",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Internal error.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "get Product By Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check product info\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.expect(responseJson.id).to.eql(pm.environment.get(\"productId\"));\r",
+									"    pm.expect(responseJson.name).to.eql(pm.collectionVariables.get(\"productName\").toUpperCase());\r",
+									"    pm.expect(responseJson.description).to.eql(\"PRODUCT DESCRIPTION\");\r",
+									"    pm.expect(responseJson.price).to.eql(12.00);\r",
+									"    pm.expect(responseJson.quantity).to.eql(5);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"{{productId}}"
+							]
+						},
+						"description": "Get product info by ID."
+					},
+					"response": [
+						{
+							"name": "product info.",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products/:productId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "1",
+											"description": "(Required) Numeric identifier of the product to get."
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 1,\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}"
+						},
+						{
+							"name": "Access token is missing or invalid.",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products/:productId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "1",
+											"description": "(Required) Numeric identifier of the product to get."
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Access token is missing or invalid.\"\n}"
+						},
+						{
+							"name": "Logged user doesn't have permission to access the resource.",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products/:productId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "1",
+											"description": "(Required) Numeric identifier of the product to get."
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"You don't have permissions to access this resource.\"\n}"
+						},
+						{
+							"name": "product not found.",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products/:productId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "1",
+											"description": "(Required) Numeric identifier of the product to get."
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"product not found.\"\n}"
+						},
+						{
+							"name": "Internal error.",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products/:productId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "1",
+											"description": "(Required) Numeric identifier of the product to get."
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Internal error.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "update Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check product info\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.expect(responseJson.id).to.eql(pm.environment.get(\"productId\"));\r",
+									"    pm.expect(responseJson.name).to.eql(pm.collectionVariables.get(\"productName\").toUpperCase() + \" UPDATED\");\r",
+									"    pm.expect(responseJson.description).to.eql(\"UPDATED DESCRIPTION\");\r",
+									"    pm.expect(responseJson.price).to.eql(29.99);\r",
+									"    pm.expect(responseJson.quantity).to.eql(10);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{productName}} updated\",\n  \"description\": \"Updated description\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"{{productId}}"
+							]
+						},
+						"description": "Update product."
+					},
+					"response": [
+						{
+							"name": "updated product info.",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/products/:productId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "1",
+											"description": "(Required) Numeric identifier of the product to update."
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 1,\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}"
+						},
+						{
+							"name": "Bad request.",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/products/:productId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "1",
+											"description": "(Required) Numeric identifier of the product to update."
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Bad request.\"\n}"
+						},
+						{
+							"name": "Access token is missing or invalid.",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/products/:productId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "1",
+											"description": "(Required) Numeric identifier of the product to update."
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Access token is missing or invalid.\"\n}"
+						},
+						{
+							"name": "Logged user doesn't have permission to access the resource.",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/products/:productId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "1",
+											"description": "(Required) Numeric identifier of the product to update."
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"You don't have permissions to access this resource.\"\n}"
+						},
+						{
+							"name": "product not found.",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/products/:productId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "1",
+											"description": "(Required) Numeric identifier of the product to update."
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"product not found.\"\n}"
+						},
+						{
+							"name": "Internal error.",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"shoes\",\n  \"description\": \"comfortable shoes\",\n  \"price\": 29.99,\n  \"quantity\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/products/:productId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "1",
+											"description": "(Required) Numeric identifier of the product to update."
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Internal error.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "get All Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check product info\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    const addedProduct = responseJson.find\r",
+									"      (p => p.id === pm.environment.get(\"productId\"));\r",
+									"  pm.expect(addedProduct)\r",
+									"    .to.be.an(\"object\", \"Could not find the product\");\r",
+									"    pm.expect(addedProduct.name).to.eql(pm.collectionVariables.get(\"productName\").toUpperCase() + \" UPDATED\");\r",
+									"    pm.expect(addedProduct.description).to.eql(\"UPDATED DESCRIPTION\");\r",
+									"    pm.expect(addedProduct.price).to.eql(29.99);\r",
+									"    pm.expect(addedProduct.quantity).to.eql(10);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						},
+						"description": "Get all products."
+					},
+					"response": [
+						{
+							"name": "products list.",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": 1,\n    \"name\": \"shoes\",\n    \"description\": \"comfortable shoes\",\n    \"price\": 29.99,\n    \"quantity\": 10\n  },\n  {\n    \"id\": 1,\n    \"name\": \"shoes\",\n    \"description\": \"comfortable shoes\",\n    \"price\": 29.99,\n    \"quantity\": 10\n  }\n]"
+						},
+						{
+							"name": "Access token is missing or invalid.",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Access token is missing or invalid.\"\n}"
+						},
+						{
+							"name": "Logged user doesn't have permission to access the resource.",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"You don't have permissions to access this resource.\"\n}"
+						},
+						{
+							"name": "Internal error.",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"description": "Added as a part of security scheme: bearer",
+										"key": "Authorization",
+										"value": "Bearer <token>"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Internal error.\"\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:3445/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "adminToken",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6IkFETUlOX1JPTEUiLCJpYXQiOjE2NDYwMzQxMDIsImV4cCI6MTY0NjAzNDQwMn0.7PRlvw0jn28ZiuzpGAdl8PfmsIztUUGT2A1-EftB-DU",
+			"type": "string"
+		},
+		{
+			"key": "userToken",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6IlVTRVJfUk9MRSIsImlhdCI6MTY0NjAzNDA3NywiZXhwIjoxNjQ2MDM0Mzc3fQ.-KC-LaRz7hWTBpfb3LuGOLbe3daE9qwv_93dufLn0Y8",
+			"type": "string"
+		},
+		{
+			"key": "productName",
+			"value": "product 1",
+			"type": "string"
+		}
+	]
+}
