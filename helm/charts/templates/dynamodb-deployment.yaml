@@ -1,0 +1,44 @@
+{{ if .Values.dynamodb.create }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dynamodb.deploy" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ include "dynamodb.name" . }}
+    release: {{ .Release.Name }}
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ include "dynamodb.name" . }}
+      release: {{ .Release.Name }}
+  replicas: {{.Values.dynamodb.replicas }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "dynamodb.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: dynamodb
+        image: {{.Values.dynamodb.image.repository }}:{{.Values.dynamodb.image.tag }}
+        resources:
+          requests:
+            memory: {{.Values.dynamodb.resources.requests.memory }}
+            cpu: {{.Values.dynamodb.resources.requests.cpu }}
+          limits:
+            memory: {{.Values.dynamodb.resources.limits.memory }}
+            cpu: {{.Values.dynamodb.resources.limits.cpu }}
+        ports:
+        - containerPort: {{ .Values.dynamodb.port }}
+        volumeMounts:
+        - mountPath: /home/dynamodblocal/data
+          name: datadb
+      volumes:
+      - name: datadb
+        persistentVolumeClaim:
+          claimName: {{ include "dynamodb.pvc" . }}
+{{ end }}
+

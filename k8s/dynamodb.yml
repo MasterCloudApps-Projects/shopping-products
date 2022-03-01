@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dynamodb-deploy
+  namespace: tfm-dev-amartinm82
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: dynamodb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dynamodb
+    spec:
+      containers:
+        - name: dynamodb
+          image: amazon/dynamodb-local:1.18.0
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - mountPath: /home/dynamodblocal/data
+              name: datadb
+      volumes:
+        - name: datadb
+          persistentVolumeClaim:
+            claimName: dynamodb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dynamodb-service
+  namespace: tfm-dev-amartinm82
+  labels:
+    app: dynamodb
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: dynamodb-port
+  selector:
+    app: dynamodb
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dynamodb-pvc
+  namespace: tfm-dev-amartinm82
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

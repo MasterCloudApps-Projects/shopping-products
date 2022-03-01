@@ -1,0 +1,48 @@
+# Default values for users API.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# K8s namespace
+namespace: tfm-dev-amartinm82
+
+# MySQL
+dynamodb:
+  create: false
+  image:
+    repository: amazon/dynamodb-local
+    tag: 1.18.0
+  region: local
+  endpoint: 'http://localhost:8000'
+  accessKeyId: xxxx
+  secretAccessKey: xxxxx
+  port: 8000
+  replicas: 1
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# security context
+securityContext:
+  runAsUser: 1001
+
+replicaCount: 1
+
+image:
+  repository: amartinm82/tfm-products
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 3445
+
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "250m"
+  limits:
+    memory: "128Mi"
+    cpu: "500m"

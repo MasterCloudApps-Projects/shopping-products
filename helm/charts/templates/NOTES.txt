@@ -1,0 +1,21 @@
+---------------------------
+------- TFM-PRODUCTS ------
+---------------------------
+You have deployed the following release: {{ .Release.Name }}.
+
+To get further information, you can run the commands:
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+The Products API will be accesible via API Gateway at: https://apigw-{{ .Values.namespace }}.cloud.okteto.net
+
+Example: 
+curl --location --request POST 'https://apigw-{{ .Values.namespace }}.cloud.okteto.net/products' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--data-raw '{
+  "name": "product name",
+  "description": "product description",
+  "price": 12.00,
+  "quantity": 5
+}'

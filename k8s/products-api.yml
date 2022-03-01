@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: products-deploy
+  namespace: tfm-dev-amartinm82
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: products
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: products
+    spec:
+      restartPolicy: Always
+      securityContext:
+        runAsUser: 1001
+      containers:
+      - name: products
+        image: amartinm82/tfm-products:trunk
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        env:
+          - name: AWS_REGION
+            value: local
+          - name: AWS_DYNAMO_ENDPOINT
+            value: http://dynamodb-service:8000
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: products-secrets
+                key: accessKeyId
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: products-secrets
+                key: secretAccessKey
+        ports:
+        - containerPort: 3445
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: products-service
+  namespace: tfm-dev-amartinm82
+  labels:
+    app: products
+  annotations:
+    dev.okteto.com/auto-ingress: 'false'
+spec:
+  ports:
+  - port: 3445
+    targetPort: 3445
+    protocol: TCP
+    name: products-port
+  selector:
+    app: products
+  type: ClusterIP

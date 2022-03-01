@@ -1,0 +1,15 @@
+{{ if .Values.dynamodb.create }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "dynamodb.pvc" . }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    "helm.sh/resource-policy": keep
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+{{ end }}

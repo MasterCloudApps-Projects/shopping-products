@@ -1,0 +1,6 @@
+apiVersion: v2
+name: tfm-products
+description: TFM Products API by amartinm82
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

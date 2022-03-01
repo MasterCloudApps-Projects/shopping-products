@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "products.deploy" . }}
+  namespace: {{ .Values.namespace }}
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ include "products.name" . }}
+      release: {{ .Release.Name }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "products.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      restartPolicy: Always
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+      containers:
+      - name: {{ include "products.name" . }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: {{ .Values.resources.requests.memory }}
+            cpu: {{ .Values.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.resources.limits.memory }}
+            cpu: {{ .Values.resources.limits.cpu }}
+        env:
+          - name: AWS_REGION
+            value: {{ .Values.dynamodb.region }}
+          - name: AWS_DYNAMO_ENDPOINT
+            value: {{ include "dynamodb.endpoint" . }}
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "products.secrets" . }}
+                key: accessKeyId
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "products.secrets" . }}
+                key: secretAccessKey
+        ports:
+        - containerPort: {{ .Values.service.port }}
