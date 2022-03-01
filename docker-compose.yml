@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-  users:
+  products:
     image: "${DOCKER_LOCAL_IMAGE}"
     ports:
       - 3445:3445
