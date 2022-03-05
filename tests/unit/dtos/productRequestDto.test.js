@@ -13,7 +13,7 @@ describe('productRequestDto tests', () => {
     }));
 
     expect(error).not.toBeInstanceOf(NoErrorThrownError);
-    expect(error).toHaveProperty('message', 'Name is mandatory and must have a minimum lenght of 3');
+    expect(error).toHaveProperty('message', 'Name is mandatory and must have a minimum length of 3');
   });
 
   test('Given an invalid name When call constructor Then should throw an error', async () => {
@@ -22,7 +22,7 @@ describe('productRequestDto tests', () => {
     }));
 
     expect(error).not.toBeInstanceOf(NoErrorThrownError);
-    expect(error).toHaveProperty('message', 'Name is mandatory and must have a minimum lenght of 3');
+    expect(error).toHaveProperty('message', 'Name is mandatory and must have a minimum length of 3');
   });
 
   test('Given min length name When call constructor Then should throw an error', async () => {
@@ -42,7 +42,7 @@ describe('productRequestDto tests', () => {
     }));
 
     expect(error).not.toBeInstanceOf(NoErrorThrownError);
-    expect(error).toHaveProperty('message', 'Description is mandatory and must have a minimum lenght of 3');
+    expect(error).toHaveProperty('message', 'Description is mandatory and must have a minimum length of 3');
   });
 
   test('Given an invalid description When call constructor Then should throw an error', async () => {
@@ -51,7 +51,7 @@ describe('productRequestDto tests', () => {
     }));
 
     expect(error).not.toBeInstanceOf(NoErrorThrownError);
-    expect(error).toHaveProperty('message', 'Description is mandatory and must have a minimum lenght of 3');
+    expect(error).toHaveProperty('message', 'Description is mandatory and must have a minimum length of 3');
   });
 
   test('Given min length description When call constructor Then should throw an error', async () => {

@@ -71,7 +71,7 @@ describe('productRouter POST /api/v1/products tests', () => {
       .expect('Content-Type', /json/)
       .expect(400)
       .then((response) => {
-        expect(response.body.error).toBe('Name is mandatory and must have a minimum lenght of 3');
+        expect(response.body.error).toBe('Name is mandatory and must have a minimum length of 3');
       });
   });
 
@@ -547,7 +547,7 @@ describe('productRouter PUT /api/v1/products/:id tests', () => {
       .send(invalidUpdateProductRequest)
       .expect(400)
       .then((response) => {
-        expect(response.body.error).toBe('Name is mandatory and must have a minimum lenght of 3');
+        expect(response.body.error).toBe('Name is mandatory and must have a minimum length of 3');
       });
   });
 

@@ -3,11 +3,11 @@ class ProductRequestDto {
     name, description, price, quantity,
   }) {
     if (!ProductRequestDto.isValidString(name)) {
-      throw new Error('Name is mandatory and must have a minimum lenght of 3');
+      throw new Error('Name is mandatory and must have a minimum length of 3');
     }
 
     if (!ProductRequestDto.isValidString(description)) {
-      throw new Error('Description is mandatory and must have a minimum lenght of 3');
+      throw new Error('Description is mandatory and must have a minimum length of 3');
     }
 
     if (ProductRequestDto.isNotANumber(price) || price <= 0) {
