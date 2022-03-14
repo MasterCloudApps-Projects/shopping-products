@@ -139,7 +139,7 @@ paths:
           $ref: '#/components/responses/InternalError'
 
     put:
-      description: Alows admin to update product.
+      description: Allows admin to update product.
       tags:
         - products
       operationId: updateProduct
