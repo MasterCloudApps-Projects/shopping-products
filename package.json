@@ -10,7 +10,8 @@
         "unit:test": "jest tests/unit",
         "it:test": "jest tests/integration",
         "lint-fix": "eslint --fix . --ext .js",
-        "dockerize": "DOCKER_LOCAL_IMAGE=${USER}/tfm-products:$npm_package_version-dev ./dockerize.sh"
+        "dockerize": "DOCKER_LOCAL_IMAGE=${USER}/tfm-products:$npm_package_version-dev ./dockerize.sh",
+        "release": "git tag $npm_package_version && git push --tags"
     },
     "dependencies": {
         "aws-sdk": "^2.1077.0",
