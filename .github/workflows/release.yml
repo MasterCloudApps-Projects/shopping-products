@@ -1,0 +1,151 @@
+name: Products RELEASE
+
+on:
+  push:
+    tags: [ '*' ]
+
+jobs:
+  check-tag:
+    name: Check tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v2
+        with:
+          ref: 'main'
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - name: get-npm-version
+        id: package_version
+        run: echo ::set-output name=version::$(npm run version --silent)
+      - name: Check tag name
+        uses: actions/github-script@v5
+        with:
+          script: |
+            console.log('${{ github.ref_name }}')
+            console.log('${{ steps.package_version.outputs.version }}')
+            if (${{ github.ref_name != steps.package_version.outputs.version }}) {
+              core.setFailed('Tag does not match with package version')
+            }
+
+  publish-package:
+    needs: [ check-tag ]
+    name: Publish package on  Github
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v2
+        with:
+          ref: 'main'
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          registry-url: https://npm.pkg.github.com/
+      - name: Install
+        run: npm ci
+      - name: Publish package
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+  publish-release:
+    needs: [ publish-package ]
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v2
+        with:
+          ref: 'main'
+      - name: 'Build Changelog'
+        id: github_release
+        uses: mikepenz/release-changelog-builder-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: ${{steps.github_release.outputs.changelog}}
+          draft: false
+          prerelease: false
+
+  publish-image:
+    needs: [ publish-release ]
+    name: Publish Docker image
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: tfm-products
+      IMAGE_LATEST_TAG: latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v2
+        with:
+          ref: 'main'
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          context: .
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }},${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_LATEST_TAG }}
+
+  deploy:
+    needs: [ publish-image ]
+    name: Deploy in k8s
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v2
+        with:
+          ref: 'main'
+      - name: Helm Deploy
+        uses: vimeda/helm@v1.6.8
+        with:
+          release: 'products-production'
+          namespace: 'tfm-amartinm82'
+          chart: './helm/charts'
+          values: |
+            namespace: tfm-amartinm82
+            image:
+              tag: ${{ github.ref_name }}
+            dynamodb:
+              region: '${{ secrets.AWS_REGION }}'
+              endpoint: '${{ secrets.AWS_DYNAMO_ENDPOINT }}'
+              accessKeyId: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+              secretAccessKey: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+          helm: helm3
+        env:
+          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+
+  bump-version:
+    needs: [ publish-release ]
+    name: 'Bump Version on main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v2
+        with:
+          ref: 'main'
+      - name: 'Automated Version Bump'
+        id: version-bump
+        uses: 'phips28/gh-action-bump-version@master'
+        with:
+          target-branch: 'main'
+          default: minor
+          commit-message: 'CI: bumps version'
+          skip-tag: 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

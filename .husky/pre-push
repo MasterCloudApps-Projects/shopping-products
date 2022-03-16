@@ -1,4 +1,21 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npm run it:test
+tagref=$(grep -Po 'refs/tags/([^ ]*) ' </dev/stdin | head -n1 | cut -c11- | tr -d '[:space:]')
+
+if [ "$tagref" != ""  ]
+then
+    ## pushing with --tags
+    ver=$(npm run version --silent)
+
+    if [ "$tagref" != "$ver" ]
+    then
+        echo "Tag name don't match version file. Preventing push."
+        echo "Remove created tag (git tag -d $tagref) and create tag with version value (git tag $ver)"
+        echo "tag name: $tagref"
+        echo "version: $ver"
+        exit 1
+    fi
+else
+  npm run it:test
+fi
