@@ -2,6 +2,7 @@
     "name": "@mca-tfm/products",
     "version": "1.0.0",
     "scripts": {
+        "version": "echo $npm_package_version",
         "prepare": "husky install",
         "start": "node src/server",
         "dev": "nodemon src/server",
