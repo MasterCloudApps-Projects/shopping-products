@@ -1,0 +1,37 @@
+name: Products Manual RELEASE Deploy
+
+on:
+  workflow_dispatch:
+    branches: [ main ]
+    inputs:
+      release:
+        description: 'Release to deploy in PRO'
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy in k8s
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v2
+        with:
+          ref: 'main'
+      - name: Helm Deploy
+        uses: vimeda/helm@v1.6.8
+        with:
+          release: 'products-production'
+          namespace: 'tfm-amartinm82'
+          chart: './helm/charts'
+          values: |
+            namespace: tfm-amartinm82
+            image:
+              tag: ${{ github.event.inputs.release }}
+            dynamodb:
+              region: '${{ secrets.AWS_REGION }}'
+              endpoint: '${{ secrets.AWS_DYNAMO_ENDPOINT }}'
+              accessKeyId: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+              secretAccessKey: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+          helm: helm3
+        env:
+          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
