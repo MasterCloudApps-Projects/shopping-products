@@ -45,7 +45,11 @@ DYNAMODB
 {{- end }}
 
 {{- define "dynamodb.endpoint" -}}
+{{- if .Values.dynamodb.create }}
 {{- printf "%s://%s:%d"  "http" (include "dynamodb.service" .) (int .Values.dynamodb.port) }}
+{{- else }}
+{{- printf "%s" .Values.dynamodb.endpoint }}
+{{- end }}
 {{- end }}
 
 {{/*

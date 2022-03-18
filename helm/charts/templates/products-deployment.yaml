@@ -35,7 +35,7 @@ spec:
           - name: AWS_REGION
             value: {{ .Values.dynamodb.region }}
           - name: AWS_DYNAMO_ENDPOINT
-            value: {{ include "dynamodb.endpoint" . }}
+            value: '{{ include "dynamodb.endpoint" . }}'
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
