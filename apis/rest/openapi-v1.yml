@@ -5,6 +5,10 @@ info:
   version: 1.0.0
 servers:
   - url: https://localhost:3445/api/v1
+  - url: https://apigw-tfm-dev-amartinm82.cloud.okteto.net
+    description: Preproduction server
+  - url: https://apigw-tfm-amartinm82.cloud.okteto.net
+    description: Production server
   
 paths:
   /products:
