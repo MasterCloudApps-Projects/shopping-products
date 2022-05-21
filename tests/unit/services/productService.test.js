@@ -15,7 +15,7 @@ const product = {
 };
 const secondProduct = {
   id: 2,
-  name: 'SWATER',
+  name: 'SWEATER',
   description: 'NICE SWEATER',
   price: 12.5,
   quantity: 10,

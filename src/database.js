@@ -15,12 +15,15 @@ async function createTable(dynamoDB, params) {
 
 // Init DB: Create tables if not exist
 const initDatabase = async () => {
+  console.log('Initializing database');
+
   // CONFIGURE AWS TO USE LOCAL REGION AND DEFAULT ENDPOINT (LOCALHOST) FOR DYNAMODB
   AWS.config.update({
     region: config['dynamo.region'],
     endpoint: config['dynamo.endpoint'],
     accessKeyId: config['dynamo.accessKeyId'],
     secretAccessKey: config['dynamo.secretAccessKey'],
+    maxRetries: config['dynamo.maxRetries'],
   });
 
   // Create client at function level to have right config
@@ -65,7 +68,7 @@ const initDatabase = async () => {
       },
     }))
     .catch((reason) => {
-      console.error(reason.message);
+      console.error(`Error initializing database: ${reason.message}`);
     });
 };
 
