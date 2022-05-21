@@ -50,7 +50,8 @@ docker-compose -f docker-compose-dev.yml up
 * [express ^4.17.1 (>=4.17.1<4.18.0)](https://www.npmjs.com/package/express): Node web framework. 
 * [jsonwebtoken ^8.5.1 (>=8.5.1<8.6.0)](https://www.npmjs.com/package/jsonwebtoken): To manage JWT tokens.
 * [aws-sdk ^2.1077.0 (>=2.1077.0<2.1078.0)](https://www.npmjs.com/package/aws-sdk/v/2.1077.0): AWS SDK for JavaScript.
-* [dynamodb-atomic-counter ^0.1.1 (>=^0.1.1<0.2.0>)](https://www.npmjs.com/package/dynamodb-atomic-counter): This library provides atomic counters using Amazon DynamoDB.
+* [dynamodb-atomic-counter ^0.1.1 (>=0.1.1<0.2.0)](https://www.npmjs.com/package/dynamodb-atomic-counter): This library provides atomic counters using Amazon DynamoDB.
+* [kafkajs ^1.16.0 (>=1.16.0<1.17.0)](https://kafka.js.org/docs/getting-started): Apache kafka client for node.js.
 
 ### Development dependencies
 * [eslint ^7.32.0 (>=7.32.0<7.33.0)](https://www.npmjs.com/package/eslint): tool for identifying and reporting on patterns found in ECMAScript/JavaScript code.
@@ -124,6 +125,16 @@ Furthermore, project is configured to execute ESLint before executing tests:
 * **dynamo.endpoint**: AWS dynamodb endpoint.
 * **dynamo.accessKeyId**: AWS access key identifier.
 * **dynamo.secretAccessKey**: AWS secret access key.
+* **dynamo.maxRetries**: max number of connection retries to dynamodb.
+* **kafka.enabled**: indicates if kafka consumer is enabled.
+* **kafka.retry.initialRetryTime**: Initial value used to calculate the kafka retry in milliseconds.
+* **kafka.retry.retries**: Max number of kafka retries per call.
+* **kafka.host**: kafka host.
+* **kafka.port**: kafka port.
+* **kafka.groupId**: kafka group identifier.
+* **kafka.topics.validateItems**: validate items topic name.
+* **kafka.topics.changeState**: order change state topic name.
+* **kafka.topics.restoreStock**: restore items stock topic name.
 * **secret**: Secret used to generate JWT tokens. Read value from `TOKEN_SECRET` environment value, if not exists, then default value is `supersecret`.
 * **token.expiration**: JWT token expiration time. Read value from `TOKEN_EXPIRATION` environment value, if not exists, then default value is `300` seconds.
 
@@ -137,12 +148,16 @@ The next variables are defined to use helm chart in [helm/charts/values.yaml](./
 * **dynamodb.endpoint**: AWS dynamodb endpoint. By default `http://localhost:8000`.
 * **dynamodb.accessKeyId**: AWS access key. By default `xxxx`.
 * **dynamodb.secretAccessKey**: AWS secret access key. By default `xxxxx`.
+* **dynamodb.maxRetries**: Dynamodb connection max retries. By default `11`.
 * **dynamodb.port**: database port. By default `8000`.
 * **dynamodb.replicas**: database replicas. By default `1`.
 * **dynamodb.resources.requests.memory**: database instance requested memory. By default `256Mi`.
 * **dynamodb.resources.requests.cpu**: database instance requested cpu. By default `250m`.
 * **dynamodb.resources.limits.memory**: database instance limit memory. By default `512Mi`.
 * **dynamodb.resources.limits.cpu**: database instance requested cpu. By default `500m`.
+* **kafka.enabled**: Indicates if kafka consumer is enabled. By default is `false`.
+* **kafka.host**: Kafka host. By default `127.0.0.1`.
+* **kafka.port**: Kafka port. By default `9092`.
 * **securityContext.runAsUser**: user which run the app in container. By default `1001`.
 * **replicaCount**: number of replicas for the app. By default `1`.
 * **image.repository**: app image name. By default `amartinm82/tfm-products`.
@@ -215,6 +230,16 @@ In both cases, [locally](#locally) and [As docker container](#as-docker-containe
 * **Postman**: select `TFM-products-local-env` environment variable. Execute postman collection:
   * **Manually**: Set values you want in the endpoint body and run it.
   * **Automatically**: Set values to `adminToken`, `userToken` and `productName` variables, and execute [Postman Collection Runner](https://learning.postman.com/docs/running-collections/intro-to-collection-runs/).
+
+**NOTE:** If the containers are not accessible via localhost, it will be necessary to use ${DOCKER_HOST_IP} instead of localhost. To do this, give a value to the variable:
+```
+export DOCKER_HOST_IP=127.0.0.1
+```
+For Mac:
+```
+sudo ifconfig lo0 alias 10.200.10.1/24  # (where 10.200.10.1 is some unused IP address)
+export DOCKER_HOST_IP=10.200.10.1
+```
 
 ## Contributing
 To contribute to this project have in mind:
