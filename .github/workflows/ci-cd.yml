@@ -81,6 +81,9 @@ jobs:
             create: true
           image:
             tag: trunk
+          kafka:
+            enabled: true
+            host: pur-dev-kafka-hs
         helm: helm3
       env:
         KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'

@@ -32,6 +32,9 @@ jobs:
               endpoint: '${{ secrets.AWS_DYNAMO_ENDPOINT }}'
               accessKeyId: '${{ secrets.AWS_ACCESS_KEY_ID }}'
               secretAccessKey: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+            kafka:
+              enabled: true
+              host: pur-pro-kafka-hs
           helm: helm3
         env:
           KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'

@@ -15,6 +15,7 @@ dynamodb:
   endpoint: 'http://localhost:8000'
   accessKeyId: xxxx
   secretAccessKey: xxxxx
+  maxRetries: 11
   port: 8000
   replicas: 1
   resources:
@@ -24,6 +25,12 @@ dynamodb:
     limits:
       memory: "512Mi"
       cpu: "500m"
+
+# Kafka
+kafka:
+  enabled: false
+  host: "127.0.0.1"
+  port: 9092
 
 # security context
 securityContext:

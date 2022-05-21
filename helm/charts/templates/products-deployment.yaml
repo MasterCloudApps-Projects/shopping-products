@@ -46,5 +46,13 @@ spec:
               secretKeyRef:
                 name: {{ include "products.secrets" . }}
                 key: secretAccessKey
+          - name: DYNAMO_RETRIES
+            value: '{{ .Values.dynamodb.maxRetries }}'
+          - name: KAFKA_ENABLED
+            value: '{{ .Values.kafka.enabled }}'
+          - name: KAFKA_HOST
+            value: '{{ .Values.kafka.host }}'
+          - name: KAFKA_PORT
+            value: '{{ .Values.kafka.port }}'
         ports:
         - containerPort: {{ .Values.service.port }}
