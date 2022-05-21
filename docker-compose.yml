@@ -2,10 +2,14 @@ version: '3.9'
 services:
   products:
     image: "${DOCKER_LOCAL_IMAGE}"
+    environment:
+      AWS_DYNAMO_ENDPOINT: http://dynamodb:8000
+      KAFKA_HOST: kafka
     ports:
       - 3445:3445
     depends_on:
       - dynamodb
+      - kafka
     command: "node src/server.js"
     restart: on-failure
 
@@ -16,3 +20,32 @@ services:
     volumes:
       - ./dynamodb_data:/home/dynamodblocal/data
     restart: always
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.3.8
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      KAFKA_HEAP_OPTS: -Xmx64m
+    volumes:
+      - ./zookeeper/data:/var/lib/zookeeper/data
+      - ./zookeeper/log:/var/lib/zookeeper/log
+
+  kafka:
+    image: "confluentinc/cp-kafka:5.3.8"
+    ports:
+      - 9092:9092
+      - 29092:29092
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_LISTENERS: LC://kafka:29092,LX://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: LC://kafka:29092,LX://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LC:PLAINTEXT,LX:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LC
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_HEAP_OPTS: -Xmx192m
+    volumes:
+      - ./kafka/data:/var/lib/kafka/data

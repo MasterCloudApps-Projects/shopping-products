@@ -109,4 +109,8 @@ dist
 # IntelliJ
 .idea
 
-.dynamodb_data
+dynamodb_data
+kafka
+zookeeper
+
+.DS_Store
