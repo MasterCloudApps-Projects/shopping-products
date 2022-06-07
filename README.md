@@ -85,7 +85,9 @@ Project is composed by the next modules:
   * **routes**: controllers.
   * **services**: services with business logic.
   * **app.js**: maps urls to controllers.
+  * **broker.js**: establish kafka connection and listen for topics.
   * **database.js**: establish database connection.
+  * **kafka.js**: contains kafka client, consumer and producer.
   * **server.js**: launch the app.
 * **tests**: application tests.
   * **integration**: integration tests.
@@ -97,8 +99,8 @@ Project is composed by the next modules:
     * **services**: services unit tests.
 * **.dockerignore**: file with files and folders to ignore when generating docker image.
 * **.eslintrc.js**: ESLint configuration file.
-* **docker-compose-dev.yml**: allows to launch the necessary resources to run the app in local (Dynamodb database).
-* **docker-compose.yml**: launch the application, along with the necessary resources (Dynamodb database), using a local docker image. The image to use is retrieved from the environment variable `DOCKER_LOCAL_IMAGE`.
+* **docker-compose-dev.yml**: allows to launch the necessary resources to run the app in local (Dynamodb database, Kafka broker).
+* **docker-compose.yml**: launch the application, along with the necessary resources (Dynamodb database, Kafka broker), using a local docker image. The image to use is retrieved from the environment variable `DOCKER_LOCAL_IMAGE`.
 * **Dockerfile**: contains all the commands to assemble the app image.
 * **dockerize.sh**: script responsible for generating the docker image locally with the current code, without uploading it to [Dockerhub](https://hub.docker.com/). To do this, use the environment variable `DOCKER_LOCAL_IMAGE` as the image name (which also adds writes to the `.env` file from which docker-compose retrieves the environment variables to use). Then build the app by running the docker-compose file above.
 * **LICENSE**: Apache 2 license file.
